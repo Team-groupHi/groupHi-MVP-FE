@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -13,38 +14,41 @@ interface BalanceGameProgressProps {
   sendMessage: <T>(
     params: Omit<StompJS.IPublishParams, 'body'> & { body?: T }
   ) => void;
-  setResult: (result: BalanceGameResultGetResponse[]) => void;
   roomId: string;
+  setPartialResult: (result: BalanceGameResultGetResponse[]) => void;
+  isAllSelected: boolean;
 }
 
 const BalanceGameProgress = ({
   sendMessage,
-  setResult,
   roomId,
+  setPartialResult,
+  isAllSelected,
 }: BalanceGameProgressProps) => {
-  const { round, setRoomStatus } = useBalanceGameStore();
+  const { round, setRoomStatus, resetSelectedPlayers } = useBalanceGameStore();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isTimeout, setIsTimeout] = useState<boolean>(false);
 
   useEffect(() => {
-    if (isTimeout === true) {
+    if (isTimeout || isAllSelected) {
       setRoomStatus('result');
+      resetSelectedPlayers();
+
       getBalanceGameResults({
         roomId: roomId,
         round: round.currentRound,
       })
         .then((data) => {
           if (data) {
-            setResult(data);
+            setPartialResult(data);
           }
         })
         .catch((error) => {
           console.log(error);
         });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isTimeout]);
+  }, [isTimeout, isAllSelected]);
 
   const handleSelect = (option: string) => {
     setSelectedOption(option);
@@ -64,10 +68,8 @@ const BalanceGameProgress = ({
     <main className="flex flex-col items-center justify-center p-8 h-full">
       <section className="w-full mb-4 flex flex-col items-center gap-4">
         <Timer
-          startTime={Date.now()}
-          endTime={Date.now() + 3000}
-          // startTime={round.startTime}
-          // endTime={round.endTime}
+          startTime={round.startTime}
+          endTime={round.endTime}
           setIsTimeout={setIsTimeout}
         />
       </section>

@@ -1,4 +1,9 @@
+import { cn } from '@/lib/utils';
+import useRoomStore from '@/store/useRoomStore';
 import Image from 'next/image';
+import { Button } from '../Button';
+import { Edit } from 'lucide-react';
+import useModalStore from '@/store/useModalStore';
 
 interface UserInfoCardProps {
   name: string;
@@ -13,9 +18,19 @@ const UserInfoCard = ({
   isHost,
   fileName,
 }: UserInfoCardProps) => {
+  const { myName } = useRoomStore();
+  const { openModal } = useModalStore();
+
+  const handleEditUserName = () => {
+    openModal('CreateUserNameModal');
+  };
+
   return (
     <section
-      className={`${isReady ? 'bg-primary/50' : 'bg-container'} w-full h-[4rem] flex rounded-lg relative`}
+      className={cn(
+        isReady ? 'bg-primary/50' : 'bg-container',
+        'w-full h-[4rem] flex rounded-lg relative'
+      )}
     >
       {isHost && (
         <section className="w-[1.8rem] h-[1.8rem] absolute -top-4 -left-4 z-10 drop-shadow-sm-dark">
@@ -33,8 +48,19 @@ const UserInfoCard = ({
           fill={true}
         />
       </figure>
-      <div className="w-3/4 px-5 flex items-center font-bold">
-        <span>{name}</span>
+      <div className="w-[calc(100%-4rem)] pl-4 pr-1 flex items-center font-bold justify-between gap-1">
+        <span className={cn(myName === name && 'text-primary-400')}>
+          {name}
+        </span>
+        {name === myName && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleEditUserName}
+          >
+            <Edit />
+          </Button>
+        )}
       </div>
     </section>
   );

@@ -62,6 +62,7 @@ const PrevGame = ({
       sendMessage({
         destination: `${SOCKET.ENDPOINT.BALANCE_GAME.START}`,
         body: {
+          //@TODO: 추후에 테마 추가시 변경
           theme: 'GENERAL',
           totalRounds: round.totalRounds,
         },
